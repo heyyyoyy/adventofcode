@@ -1,5 +1,5 @@
 fn calorie_counting_part_two(input_str: &str) -> u64 {
-    let mut sums = input_str
+    let mut countrers = input_str
     .lines()
     .fold(Vec::new(), |mut acc, number_str| {
         if let Ok(number) = number_str.trim().parse::<u64>() {
@@ -14,8 +14,8 @@ fn calorie_counting_part_two(input_str: &str) -> u64 {
         }
         acc
     });
-    sums.sort_by(|a, b| b.cmp(a));
-    sums[..3].iter().sum()
+    countrers.sort_by(|a, b| b.cmp(a));
+    countrers[..3].iter().sum()
 }
 
 
