@@ -90,10 +90,10 @@ impl<'a> From<SplitWhitespace<'a>> for Round {
 fn rock_paper_scissors(input_str: &str) -> u64 {
     input_str
     .lines()
-    .fold(0, |mut acc, line| {
-        acc += Round::from(line.split_whitespace()).round_score();
-        acc
+    .map(|line| {
+        Round::from(line.split_whitespace()).round_score()
     })
+    .sum()
 }
 
 
