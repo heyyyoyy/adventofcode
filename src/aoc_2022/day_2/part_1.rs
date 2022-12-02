@@ -2,41 +2,41 @@ use std::str::SplitWhitespace;
 
 
 enum RoundResult {
-    LOST = 0,
-    DRAW = 3,
-    WIN = 6
+    Lost = 0,
+    Draw = 3,
+    Win = 6
 }
 
 
 enum Enemy {
-    A = 1, // rock
-    B = 2, // paper
-    C = 3  // scissors
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3
 }
 
 impl<'a> From<&'a str> for Enemy {
     fn from(state: &str) -> Self {
         match state {
-            "A" => Enemy::A,
-            "B" => Enemy::B,
-            "C" => Enemy::C,
+            "A" => Enemy::Rock,
+            "B" => Enemy::Paper,
+            "C" => Enemy::Scissors,
             _ => unreachable!()
         }
     }
 }
 
 enum Player {
-    X = 1, // rock
-    Y = 2, // paper
-    Z = 3  // scissors
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3
 }
 
 impl<'a> From<&'a str> for Player {
     fn from(state: &str) -> Self {
         match state {
-            "X" => Player::X,
-            "Y" => Player::Y,
-            "Z" => Player::Z,
+            "X" => Player::Rock,
+            "Y" => Player::Paper,
+            "Z" => Player::Scissors,
             _ => unreachable!()
         }
     }
@@ -52,25 +52,25 @@ impl Round {
 
     fn round_score(&self) -> u64 {
         match self {
-            Self(Enemy::A, x) => {
+            Self(Enemy::Rock, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundResult::DRAW as u64,
-                    Player::Y => Player::Y as u64 + RoundResult::WIN as u64,
-                    Player::Z => Player::Z as u64 + RoundResult::LOST as u64
+                    Player::Rock => Player::Rock as u64 + RoundResult::Draw as u64,
+                    Player::Paper => Player::Paper as u64 + RoundResult::Win as u64,
+                    Player::Scissors => Player::Scissors as u64 + RoundResult::Lost as u64
                 }
             },
-            Self(Enemy::B, x) => {
+            Self(Enemy::Paper, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundResult::LOST as u64,
-                    Player::Y => Player::Y as u64 + RoundResult::DRAW as u64,
-                    Player::Z => Player::Z as u64 + RoundResult::WIN as u64
+                    Player::Rock => Player::Rock as u64 + RoundResult::Lost as u64,
+                    Player::Paper => Player::Paper as u64 + RoundResult::Draw as u64,
+                    Player::Scissors => Player::Scissors as u64 + RoundResult::Win as u64
                 }
             },
-            Self(Enemy::C, x) => {
+            Self(Enemy::Scissors, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundResult::WIN as u64,
-                    Player::Y => Player::Y as u64 + RoundResult::LOST as u64,
-                    Player::Z => Player::Z as u64 + RoundResult::DRAW as u64
+                    Player::Rock => Player::Rock as u64 + RoundResult::Win as u64,
+                    Player::Paper => Player::Paper as u64 + RoundResult::Lost as u64,
+                    Player::Scissors => Player::Scissors as u64 + RoundResult::Draw as u64
                 }
             }
         }
