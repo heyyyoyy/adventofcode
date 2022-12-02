@@ -8,6 +8,18 @@ enum RoundScore {
 }
 
 
+impl<'a> From<&'a str> for RoundScore {
+    fn from(state: &str) -> Self {
+        match state {
+            "X" => RoundScore::LOST,
+            "Y" => RoundScore::DRAW,
+            "Z" => RoundScore::WIN,
+            _ => unreachable!()
+        }
+    }
+}
+
+
 enum Enemy {
     A = 1, // rock
     B = 2, // paper
@@ -31,46 +43,35 @@ enum Player {
     Z = 3  // scissors
 }
 
-impl<'a> From<&'a str> for Player {
-    fn from(state: &str) -> Self {
-        match state {
-            "X" => Player::X,
-            "Y" => Player::Y,
-            "Z" => Player::Z,
-            _ => unreachable!()
-        }
-    }
-}
 
-
-struct Round(Enemy, Player);
+struct Round(Enemy, RoundScore);
 
 impl Round {
-    fn build(enemy: Enemy, player: Player) -> Self {
-        Round(enemy, player)
+    fn build(enemy: Enemy, round_res: RoundScore) -> Self {
+        Round(enemy, round_res)
     }
 
     fn round_score(&self) -> u64 {
         match self {
             Self(Enemy::A, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::DRAW as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::WIN as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::LOST as u64
+                    RoundScore::LOST => Player::Z as u64 + RoundScore::LOST as u64,
+                    RoundScore::DRAW => Player::X as u64 + RoundScore::DRAW as u64,
+                    RoundScore::WIN => Player::Y as u64 + RoundScore::WIN as u64
                 }
             },
             Self(Enemy::B, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::LOST as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::DRAW as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::WIN as u64
+                    RoundScore::LOST => Player::X as u64 + RoundScore::LOST as u64,
+                    RoundScore::DRAW => Player::Y as u64 + RoundScore::DRAW as u64,
+                    RoundScore::WIN => Player::Z as u64 + RoundScore::WIN as u64
                 }
             },
             Self(Enemy::C, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::WIN as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::LOST as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::DRAW as u64
+                    RoundScore::LOST => Player::Y as u64 + RoundScore::LOST as u64,
+                    RoundScore::DRAW => Player::Z as u64 + RoundScore::DRAW as u64,
+                    RoundScore::WIN => Player::X as u64 + RoundScore::WIN as u64
                 }
             }
         }
@@ -107,12 +108,12 @@ mod tests {
         let input_str = "A Y
 B X
 C Z";
-        assert_eq!(15, rock_paper_scissors(input_str));
+        assert_eq!(12, rock_paper_scissors(input_str));
     }
 
     #[test]
     fn test_rock_paper_scissors_from_file() {
         let input_str = fs::read_to_string(".\\src\\aoc_2022\\day_2\\input.txt").unwrap();
-        assert_eq!(14827, rock_paper_scissors(&input_str));
+        assert_eq!(13889, rock_paper_scissors(&input_str));
     }
 }
