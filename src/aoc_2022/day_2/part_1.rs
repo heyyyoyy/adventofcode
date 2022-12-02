@@ -1,7 +1,7 @@
 use std::str::SplitWhitespace;
 
 
-enum RoundScore {
+enum RoundResult {
     LOST = 0,
     DRAW = 3,
     WIN = 6
@@ -54,23 +54,23 @@ impl Round {
         match self {
             Self(Enemy::A, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::DRAW as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::WIN as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::LOST as u64
+                    Player::X => Player::X as u64 + RoundResult::DRAW as u64,
+                    Player::Y => Player::Y as u64 + RoundResult::WIN as u64,
+                    Player::Z => Player::Z as u64 + RoundResult::LOST as u64
                 }
             },
             Self(Enemy::B, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::LOST as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::DRAW as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::WIN as u64
+                    Player::X => Player::X as u64 + RoundResult::LOST as u64,
+                    Player::Y => Player::Y as u64 + RoundResult::DRAW as u64,
+                    Player::Z => Player::Z as u64 + RoundResult::WIN as u64
                 }
             },
             Self(Enemy::C, x) => {
                 match x {
-                    Player::X => Player::X as u64 + RoundScore::WIN as u64,
-                    Player::Y => Player::Y as u64 + RoundScore::LOST as u64,
-                    Player::Z => Player::Z as u64 + RoundScore::DRAW as u64
+                    Player::X => Player::X as u64 + RoundResult::WIN as u64,
+                    Player::Y => Player::Y as u64 + RoundResult::LOST as u64,
+                    Player::Z => Player::Z as u64 + RoundResult::DRAW as u64
                 }
             }
         }
