@@ -1,19 +1,14 @@
 fn calorie_counting_part_one(input_str: &str) -> u64 {
-    *input_str
-    .lines()
-    .fold(Vec::new(), |mut acc, number_str| {
-        if let Ok(number) = number_str.trim().parse::<u64>() {
-            if acc.last().is_some() {
-                let last = acc.last_mut().unwrap();
-                *last += number;
-            } else {
-                acc.push(number);
-            }
-        } else {
-            acc.push(0);
-        }
-        acc
-    }).iter().max().unwrap()
+    input_str
+    .split("\n\n")
+    .map(|numbers| {
+        numbers.lines().map(|number_str| {
+            number_str.parse::<u64>().unwrap()
+        })
+        .sum()
+    })
+    .max()
+    .unwrap()
 }
 
 
@@ -25,22 +20,20 @@ mod tests {
 
     #[test]
     fn test_calorie_counting() {
-        let input_str = r"#
-            1000
-            2000
-            3000
+        let input_str = r"1000
+2000
+3000
 
-            4000
+4000
 
-            5000
-            6000
+5000
+6000
 
-            7000
-            8000
-            9000
+7000
+8000
+9000
 
-            10000
-        #";
+10000";
         assert_eq!(24000, calorie_counting_part_one(input_str));
     }
 
