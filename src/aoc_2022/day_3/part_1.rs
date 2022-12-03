@@ -1,6 +1,6 @@
 fn rucksack(input_str: &str) -> u64 {
     let mut chars: Vec<char> = ('a'..='z').collect();
-    chars.extend(('A'..='Z').into_iter().map(|ch| ch));
+    chars.extend(('A'..='Z').into_iter().collect::<Vec<char>>());
 
     input_str
     .lines()

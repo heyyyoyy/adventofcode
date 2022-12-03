@@ -1,7 +1,7 @@
 fn rucksack(input_str: &str) -> u64 {
     // build vector with chars a-zA-Z
     let mut chars: Vec<char> = ('a'..='z').collect();
-    chars.extend(('A'..='Z').into_iter().map(|ch| ch));
+    chars.extend(('A'..='Z').into_iter().collect::<Vec<char>>());
 
     // grouping by three lines 
     let groupes: Vec<Vec<&str>> = input_str
