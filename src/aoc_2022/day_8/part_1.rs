@@ -1,4 +1,3 @@
-
 fn treetop_tree_house(input_str: &str) -> u64 {
     let arr: Vec<&str> = input_str
     .lines()
