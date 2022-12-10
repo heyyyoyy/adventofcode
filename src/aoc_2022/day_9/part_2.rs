@@ -21,6 +21,7 @@ impl<'a> From<&'a str> for Direction {
     }
 }
 
+
 fn rope_bridge(input_str: &str) -> u64 {
     let directions = input_str.lines().flat_map(|line| {
         let mut command = line.split_whitespace();
@@ -28,7 +29,7 @@ fn rope_bridge(input_str: &str) -> u64 {
     })
     .collect::<Vec<Direction>>();
 
-    let rope = (0..2).map(|_| RefCell::new((0,0))).collect::<Vec<RefCell<(i32,i32)>>>();
+    let rope = (0..10).map(|_| RefCell::new((0,0))).collect::<Vec<RefCell<(i32,i32)>>>();
     let mut total = HashSet::from([(0,0)]);
 
     for direction in directions {
@@ -70,11 +71,13 @@ fn rope_bridge(input_str: &str) -> u64 {
                 },
                 _ => {}
             }
+
         }
         total.insert(*rope.last().unwrap().borrow());
     }
     total.len() as u64
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -82,21 +85,21 @@ mod tests {
 
     #[test]
     fn test_rope_bridge() {
-        let input_str = "R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2";
-        assert_eq!(13, rope_bridge(input_str));
+        let input_str = "R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20";
+        assert_eq!(36, rope_bridge(input_str));
     }
 
     #[test]
     fn test_rope_bridge_from_file() {
         let input_str = include_str!("input.txt");
-        assert_eq!(5683, rope_bridge(input_str));
+        assert_eq!(2372, rope_bridge(input_str));
     }
 }
 
