@@ -1,33 +1,80 @@
-use std::iter::Peekable;
-
-struct Dir(Vec<Dir>, usize);
+use std::{collections::HashMap, rc::Rc, cell::RefCell};
 
 
-fn size_counter(lines: &mut Peekable<impl Iterator<Item = &'static str>>) -> Dir {
-    let (mut dirs, mut size) = (vec![], 0);
-    while let Some(line) = lines.next() {
-        match line {
-            "$ cd .." => break,
-            _ if line.starts_with("$ l") => {
-                size = std::iter::from_fn(|| lines.next_if(|line| !line.starts_with('$')))
-                    .filter(|line| !line.starts_with('d'))
-                    .map(|line| line.split(' ').next().unwrap().parse::<usize>().unwrap())
-                    .sum()
+#[derive(Default)]
+struct Dir {
+    name: String,
+    size: RefCell<u64>,
+    parent: Option<Rc<Dir>>,
+    childrens: RefCell<HashMap<String, Rc<Dir>>>
+}
+
+impl Dir {
+    fn parse_input(input_str: &str) -> Rc<Dir> {
+        let root = Rc::new(Dir {
+             name: "/".to_string(), 
+             size: RefCell::new(0), 
+             parent: None, 
+             childrens: RefCell::new(HashMap::new()) 
+            });
+        let mut cwd = Rc::new(Dir::default());
+        for line in input_str.lines() {
+            let command = line.split_whitespace().collect::<Vec<&str>>();
+            match (command[0], command[1]) {
+                ("$", "cd") => {
+                    match command[2] {
+                        "/" => cwd = Rc::clone(&root),
+                        ".." => cwd = Rc::clone(&cwd.parent.as_ref().unwrap()),
+                        dir => {
+                            let new_dir = cwd.childrens.borrow().get(dir).unwrap().clone();
+                            cwd = new_dir;
+                        },
+                    }
+                },
+                ("$", "ls") => {},
+                ("dir", dir) => {
+                    cwd.childrens.borrow_mut().insert(
+                        dir.to_string(), 
+                        Rc::new(Dir {
+                             name: dir.to_string(), 
+                             size: RefCell::new(0), 
+                             parent: Some(Rc::clone(&cwd)), 
+                             childrens: RefCell::new(HashMap::new()) 
+                            })
+                    );
+                },
+    
+                (size, _) => {
+                    *cwd.size.borrow_mut() += size.parse::<u64>().unwrap();
+                },
             }
-            _ => dirs.push(size_counter(lines)),
         }
+        root
     }
-    size += dirs.iter().map(|d| d.1).sum::<usize>();
-    Dir(dirs, size)
+
+    fn size(&self) -> u64 {
+        *self.size.borrow() + self.childrens.borrow().values().fold(0, |x, y| x + y.size())
+    }
 }
 
 
-fn search(d: &Dir, min: usize) -> Option<usize> {
-    d.0.iter()
-        .filter(|d| d.1 >= min)
-        .flat_map(|d| [Some(d.1), search(d, min)])
-        .flatten()
-        .min()
+fn size_counter(input_str: &str) -> u64 {
+    let root = Dir::parse_input(input_str);
+    let total_size = root.size();
+    let free_space = 70000000 - total_size;
+    let space_needed = 30000000 - free_space;
+
+    let mut arr = vec![Rc::clone(&root)];
+    let mut min_space = u64::MAX;
+
+    while let Some(dir) = arr.pop() {
+        arr.extend(dir.childrens.borrow().values().map(Rc::clone));
+        let size = dir.size();
+        if size >= space_needed {
+            min_space = min_space.min(size);
+        }
+    }
+    min_space
 }
 
 
@@ -60,15 +107,12 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k";
-        let root = size_counter(&mut input_str.lines().peekable());
-        let res = search(&root, root.1 - 40_000_000).unwrap();
-        assert_eq!(24933642, res);
+        assert_eq!(24933642, size_counter(input_str));
     }
 
     #[test]
     fn test_size_counter_from_file() {
-        let root = size_counter(&mut include_str!("input.txt").lines().peekable());
-        let res = search(&root, root.1 - 40_000_000).unwrap();
-        assert_eq!(5469168, res);
+        let input_str = include_str!("input.txt");
+        assert_eq!(5469168, size_counter(input_str));
     }
 }
