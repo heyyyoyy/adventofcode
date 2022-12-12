@@ -47,7 +47,11 @@ fn hill_climbing(input_str: &str) -> usize {
     grid[x_start][y_start] = 'a';
     grid[x_end][y_end] = 'z';
 
-    bfs(&grid, (x_start, y_start), (x_end, y_end)).unwrap()
+    (0..grid.len()).cartesian_product(0..grid[0].len())
+    .filter(|&(x, y)| grid[x][y] == 'a')
+    .filter_map(|start| bfs(&grid, start, (x_end, y_end)))
+    .min()
+    .unwrap()
 }
 
 
@@ -64,13 +68,13 @@ abcryxxl
 accszExk
 acctuvwj
 abdefghi";
-        assert_eq!(31, hill_climbing(input_str));
+        assert_eq!(29, hill_climbing(input_str));
     }
 
     #[test]
     fn test_hill_climbing_from_file() {
         let input_str = include_str!("input.txt");
-        assert_eq!(412, hill_climbing(input_str));
+        assert_eq!(402, hill_climbing(input_str));
     }
 
     #[bench]
