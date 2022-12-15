@@ -70,7 +70,7 @@ fn beacon_exclusion_zone(input_str: &str, max_row: i32) -> i64 {
             ranges = new_ranges;
         }
         if !ranges.is_empty() {
-            let x = i64::from(*ranges[0].start());
+            let x = *ranges[0].start() as i64;
             return x * 4000000 + y as i64;
         }
     }
