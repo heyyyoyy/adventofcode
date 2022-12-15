@@ -13,14 +13,18 @@ fn step(pos: (i32,i32), cave: &HashMap<(i32,i32), char>) -> Option<(i32,i32)> {
     None
 }
 
-fn drop_sand(sand_point: (i32,i32), cave: &mut HashMap<(i32,i32), char>, bottom: i32) -> bool {
-    let mut cur_pos = sand_point;
+fn drop_sand(cave: &mut HashMap<(i32,i32), char>, bottom: i32) -> bool {
+    let mut cur_pos = (500, 0);
+
+    if cave.contains_key(&cur_pos) {
+        return false;
+    }
 
     while let Some(next_pos) = step(cur_pos, &cave) {
-        if next_pos.1 > bottom {
-            return false;
-        }
         cur_pos = next_pos;
+        if cur_pos.1 == bottom + 1 {
+            break;
+        }
     }
     cave.insert(cur_pos, 'o');
     true
@@ -30,9 +34,6 @@ fn drop_sand(sand_point: (i32,i32), cave: &mut HashMap<(i32,i32), char>, bottom:
 fn regolith_reservoir(input_str: &str) -> usize {
 
     let mut cave: HashMap<(i32,i32), char> = HashMap::new();
-
-    let sand_point = (500, 0);
-    cave.insert(sand_point, '+');
 
     for line in input_str.lines() {
         let ranges = line.split(" -> ")
@@ -61,26 +62,9 @@ fn regolith_reservoir(input_str: &str) -> usize {
 
     let bottom = cave.keys().map(|&point| point.1).max().unwrap();
     let mut count = 0;
-    while drop_sand(sand_point, &mut cave, bottom) {
+    while drop_sand(&mut cave, bottom) {
         count += 1;
     }
-
-    // let x = cave.keys().map(|&point| point.0);
-    // let y = cave.keys().map(|&point| point.1);
-
-    // let (x_min, x_max) = (x.clone().min().unwrap(), x.max().unwrap());
-    // let (y_min, y_max) = (y.clone().min().unwrap(), y.max().unwrap());
-
-    // for y in y_min..=y_max {
-    //     for x in x_min..=x_max {
-    //         if let Some(point) = cave.get(&(x,y)) {
-    //             print!("{point}")
-    //         } else {
-    //             print!(".")
-    //         }
-    //     }
-    //     println!();
-    // }
 
     count
 }
@@ -95,13 +79,13 @@ mod tests {
     fn test_regolith_reservoir() {
         let input_str = "498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9";
-        assert_eq!(24, regolith_reservoir(input_str));
+        assert_eq!(93, regolith_reservoir(input_str));
     }
 
     #[test]
     fn test_regolith_reservoir_from_file() {
         let input_str = include_str!("input.txt");
-        assert_eq!(696, regolith_reservoir(input_str));
+        assert_eq!(23610, regolith_reservoir(input_str));
     }
 
     #[bench]
