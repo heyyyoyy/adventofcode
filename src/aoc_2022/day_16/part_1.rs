@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeSet};
 
 
 fn get_flow_and_tunnels(input_str: &str) -> (HashMap<String, i32>, HashMap<String, Vec<String>>) {
@@ -21,11 +21,61 @@ fn get_flow_and_tunnels(input_str: &str) -> (HashMap<String, i32>, HashMap<Strin
     (flows, tunnels)
 }
 
-fn proboscidea_volcanium(input_str: &str) -> usize {
+fn dfs(
+    valve: String,
+    flows: &HashMap<String, i32>,
+    tunnels: &HashMap<String, Vec<String>>,
+    time: i32,
+    visited: &mut BTreeSet<String>,
+    cache: &mut HashMap<(String, BTreeSet<String>, i32), i32>
+) -> i32 {
+    if time == 0 {
+        return 0;
+    }
+    let key = (valve.clone(), visited.clone(), time);
+    let v = cache.get(&key);
+    
+    if v.is_some() {
+        return *v.unwrap();
+    }
+
+    let mut max_pressure = 0;
+
+    let flow = *flows.get(&valve).unwrap();
+    let tun = tunnels.get(&valve).unwrap();
+
+    if !visited.contains(&valve) && flow > 0 {
+        let mut cur_visited = visited.clone();
+        cur_visited.insert(valve.clone());
+       
+        max_pressure = max_pressure.max(
+            visited.iter().map(|v| *flows.get(v).unwrap()).sum::<i32>() + dfs(
+                valve.clone(), flows, tunnels, time - 1, &mut cur_visited, cache
+            )
+        );
+    }
+    for t in tun {
+        max_pressure = max_pressure.max(
+            visited.iter().map(|v| *flows.get(v).unwrap()).sum::<i32>() + dfs(
+                t.clone(), flows, tunnels, time - 1, visited, cache
+            )
+        );
+    }
+    cache.insert(key, max_pressure);
+
+    max_pressure
+}
+
+
+fn proboscidea_volcanium(input_str: &str) -> i32 {
+    let time = 30;
+    let mut visited: BTreeSet<String> = BTreeSet::new();
+    let mut cache: HashMap<(String, BTreeSet<String>, i32), i32> = HashMap::new();
     let (flows, tunnels) = get_flow_and_tunnels(input_str);
 
-    dbg!(&flows, &tunnels);
-    todo!()
+    let max_pressure = dfs("AA".to_owned(), &flows, &tunnels, time, &mut visited, &mut cache);
+
+    max_pressure
 }
 
 
@@ -47,19 +97,17 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II";
-        assert_eq!(0, proboscidea_volcanium(input_str));
+        assert_eq!(1651, proboscidea_volcanium(input_str));
     }
 
     #[test]
-    #[ignore = "reason"]
-    fn test_beacon_exclusion_zone_from_file() {
+    fn test_proboscidea_volcanium_from_file() {
         let input_str = include_str!("input.txt");
-        assert_eq!(5176944, proboscidea_volcanium(input_str));
+        assert_eq!(1751, proboscidea_volcanium(input_str));
     }
 
     #[bench]
-    #[ignore = "reason"]
-    fn bench_beacon_exclusion_zone(b: &mut Bencher) {
+    fn bench_proboscidea_volcanium(b: &mut Bencher) {
         let input_str = include_str!("input.txt");
         b.iter(|| {
             proboscidea_volcanium(input_str)
