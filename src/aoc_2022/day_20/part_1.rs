@@ -13,8 +13,12 @@ fn grove_positioning_system(input_str: &str) -> i32 {
         let index = mixed.iter().position(|&num| num.0 == *idx).unwrap();
         let rem_value = mixed.remove(index);
         let shift = index as i32 + rem_value.1;
-        let new_index = shift.rem_euclid(mixed.len() as i32) as usize;
-        mixed.insert(new_index, rem_value);
+        if shift == 0 {
+            mixed.push(rem_value);
+        } else {
+            let new_index = shift.rem_euclid(mixed.len() as i32) as usize;
+            mixed.insert(new_index, rem_value);
+        }
     }
 
     let zero_index = mixed.iter().position(|&num| num.1 == 0).unwrap();
