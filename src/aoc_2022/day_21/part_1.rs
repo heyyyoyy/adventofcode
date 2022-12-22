@@ -33,18 +33,20 @@ fn calc(monkey_name: &String, monkeys: &HashMap<String, Job>) -> i64 {
     match job {
         Job::Number(num) => {return *num;},
         Job::Operation((lhs, operation, rhs)) => {
+            let left = calc(&lhs, monkeys);
+            let right = calc(&rhs, monkeys);
             match operation {
                 '+' => {
-                    return calc(lhs, monkeys) + calc(rhs, monkeys);
+                    return left + right;
                 },
                 '-' => {
-                    return calc(lhs, monkeys) - calc(rhs, monkeys);
+                    return left - right;
                 },
                 '*' => {
-                    return calc(lhs, monkeys) * calc(rhs, monkeys);
+                    return left * right;
                 },
                 '/' => {
-                    return calc(lhs, monkeys) / calc(rhs, monkeys);
+                    return left / right;
                 },
                 _ => unreachable!("wrong operation")
             }
