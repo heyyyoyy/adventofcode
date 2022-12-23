@@ -14,7 +14,7 @@ const CHECK_DIR: [[(i64,i64); 3]; 4] = [
 
 #[derive(Debug, Default)]
 struct Grove {
-    elves : Vec<(i64,i64)>,
+    elves : HashSet<(i64,i64)>,
     dir: i64,
     moved: bool
 }
@@ -34,7 +34,7 @@ impl Grove {
                 }
             })
         })
-        .collect::<Vec<(i64,i64)>>();
+        .collect::<HashSet<(i64,i64)>>();
         Self { elves, ..Default::default() }
     }
 
@@ -104,7 +104,7 @@ impl Grove {
                 round_res.insert(old_pos);
             }
         }
-        self.elves = round_res.into_iter().collect::<Vec<_>>();
+        self.elves = round_res;
         self.dir = (self.dir + 1) % DIR.len() as i64;
     }
 }
@@ -114,7 +114,6 @@ fn unstable_diffusion(input_str: &str) -> usize {
     let mut grove = Grove::parse(input_str);
     let mut count = 0;
     loop {
-        println!("Count {count}");
         count += 1;
         grove.round();
         if !grove.moved {break;}
@@ -144,7 +143,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "slow"]
     fn test_unstable_diffusion_from_file() {
         let input_str = include_str!("input.txt");
         assert_eq!(1057, unstable_diffusion(input_str));
