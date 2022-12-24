@@ -60,7 +60,6 @@ fn draw(
                     if state.contains(&(row, col, d)) {
                         count += 1;
                         arrow = ARROW.chars().nth(d as usize).unwrap();
-                        // print!("{}", ARROW.chars().nth(d as usize).unwrap());
                         draw = true;
                     }
                     
@@ -84,18 +83,14 @@ fn draw(
 
 fn blizzard_basin(input_str: &str) -> usize {
     let mut blizzards = parse(input_str);
-    // dbg!(&blizzards);
 
     let row_len = input_str.lines().count();
     let col_len = input_str.lines().next().unwrap().len();
-    // dbg!(&row_len, &col_len); 
+
     let start_pos = (0,1);
     let end_pos = (row_len as i64 - 1, col_len as i64 - 2);
-    // dbg!(&start_pos, &end_pos);
 
     let period = lcm(row_len, col_len);
-    // dbg!(period);
-
 
     let mut states = Vec::with_capacity(period);
     states.push(blizzards.clone());
@@ -126,15 +121,44 @@ fn blizzard_basin(input_str: &str) -> usize {
         states.push(new_bliz.clone());
         blizzards = new_bliz;
     }
-    // dbg!(&period, &states.len());
 
-    for i in 0..period {
-        draw(&states[i], row_len as i64, col_len as i64, &start_pos, &end_pos);
-        println!("--------------------------------------------------------------")
+    let mut queue = VecDeque::new();
+    let mut visited = HashSet::new();
+    let mut count = 0;
+
+    queue.push_back((0, start_pos));
+    while let Some(state) = queue.pop_front() {
+        if visited.contains(&state) {
+            continue;
+        }
+        visited.insert(state);
+
+        let (time, cur_pos) = state;
+
+        if (cur_pos.0, cur_pos.1) == end_pos {
+            count = time;
+            break;
+        }
+        for (delta_row, delta_col) in DIR.iter().chain([&(0,0)]) {
+            let new_pos = (cur_pos.0 + delta_row, cur_pos.1 + delta_col);
+
+            if !(new_pos == start_pos || new_pos == end_pos) &&
+            !(new_pos.0 >= 1
+            && new_pos.0 <= row_len as i64 - 2
+            && new_pos.1 >= 1 
+            && new_pos.1 <= col_len as i64 - 2)
+            {
+                continue;
+            }
+
+            let st = states.get((time + 1) % period).unwrap();
+            if is_bliz(&new_pos, st) {
+                continue;
+            }
+            queue.push_back((time + 1, new_pos));
+        }
     }
-
-    
-    todo!()
+    count
 }
 
 
@@ -156,14 +180,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "reason"]
     fn test_blizzard_basin_from_file() {
         let input_str = include_str!("input.txt");
-        assert_eq!(1057, blizzard_basin(input_str));
+        assert_eq!(326, blizzard_basin(input_str));
     }
 
     #[bench]
-    #[ignore = "reason"]
     fn bench_blizzard_basin(b: &mut Bencher) {
         let input_str = include_str!("input.txt");
         b.iter(|| {
